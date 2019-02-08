@@ -1,25 +1,47 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import BookForm from './components/BookForm';
+import Icon from './components/Icon';
+import BookList from './components/BookList';
 
 class App extends Component {
+  state = {
+    books: [],
+  };
+
+  componentDidMount() {
+    const books =
+      localStorage.getItem('reactBooks') === null
+        ? []
+        : JSON.parse(localStorage.getItem('reactBooks'));
+    this.setState({ books });
+  }
+
+  addBook = book => {
+    const books = this.state.books;
+    this.setState({ books: [book, ...books] }, () => {
+      localStorage.setItem('reactBooks', JSON.stringify(this.state.books));
+    });
+  };
+
+  deleteBook = isbn => {
+    this.setState(
+      state => ({ books: state.books.filter(book => book.isbn !== isbn) }),
+      () => localStorage.setItem('reactBooks', JSON.stringify(this.state.books))
+    );
+  };
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div className="container mt-3">
+        <div className="text-center mb-4">
+          <h1>
+            <Icon iconName="book-open" color="primary" />
+            My<span className="text-primary">Book</span>List
+          </h1>
+        </div>
+        <BookForm addBook={this.addBook} />
+        <BookList books={this.state.books} deleteBook={this.deleteBook} />
       </div>
     );
   }
